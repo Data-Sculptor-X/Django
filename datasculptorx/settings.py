@@ -12,8 +12,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
-import dj_database_url
-from django_cockroachdb import base as cockroachdb
+# import dj_database_url
+# from django_cockroachdb import base as cockroachdb
 
 
 
@@ -91,7 +91,23 @@ WSGI_APPLICATION = 'datasculptorx.wsgi.application'
 #         'PORT': 'your_couchdb_port',
 #     }
 # }
-DATABASES = {'default': dj_database_url.config(default="postgresql://Datasculptor:5FWXbHTTbPBpGRz-yMAXkg@school-ent-7518.8nk.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full", engine='django_cockroachdb')}
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'defaultdb',
+        'USER': 'Datasculptor',
+        'PASSWORD': '5FWXbHTTbPBpGRz-yMAXkg',
+        'HOST': 'school-ent-7518.8nk.cockroachlabs.cloud',
+        'PORT': '26257',
+        'OPTIONS': {
+            'sslmode': 'require',
+            'sslrootcert': os.path.join(BASE_DIR, 'secrets','root.crt'),
+        },
+    },
+}
+
+# DATABASES = {'default': dj_database_url.config(default="postgresql://Datasculptor:5FWXbHTTbPBpGRz-yMAXkg@school-ent-7518.8nk.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full", engine='django_cockroachdb')}
 
 
 # Password validation
