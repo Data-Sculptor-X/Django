@@ -16,10 +16,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG')
+DEBUG = eval(os.getenv('DEBUG'))
 
 ALLOWED_HOSTS = ["*"]
-
+print("DEBUG value:", os.getenv('DEBUG'))
+print("DEBUG value:", type(os.getenv('DEBUG')))
 
 # Application definition
 
