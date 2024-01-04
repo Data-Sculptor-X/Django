@@ -77,10 +77,10 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST':os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT'),
-        # 'OPTIONS': {
-        #     'sslmode': 'require',
-        #     'sslrootcert': os.path.join(BASE_DIR, 'secrets','root.crt'),
-        # },
+        'OPTIONS': {
+            'sslmode': 'require',
+            'sslrootcert': os.path.join(BASE_DIR, 'secrets','us-east-1-bundle.pem'),
+        },
     },
 }
 
