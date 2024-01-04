@@ -71,14 +71,19 @@ WSGI_APPLICATION = 'datasculptorx.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('DB_NAME'),
-        'HOST': os.getenv('DB_HOST'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST':os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT'),
+        # 'OPTIONS': {
+        #     'sslmode': 'require',
+        #     'sslrootcert': os.path.join(BASE_DIR, 'secrets','root.crt'),
+        # },
     },
 }
+
 
 
 # Password validation
