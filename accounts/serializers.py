@@ -32,8 +32,9 @@ class LoginSerializer(serializers.Serializer):
         user = User.objects.get(username=data['username'])
         if user.check_password(data['password']):
             refresh = RefreshToken.for_user(user)
+            data['refresh_token'] = str(refresh)
             data['access_token'] = str(refresh.access_token)
-            data['refresh_token'] = refresh
+            data.pop("password")
         else:
             raise serializers.ValidationError("Incorrect credentials")
         return data
