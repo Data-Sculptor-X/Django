@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 # # Load environment variables from .env
 load_dotenv()
@@ -29,10 +30,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'home'
+        'rest_framework',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',
+    'accounts'
 ]
 
 MIDDLEWARE = [
+        'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -82,6 +88,33 @@ DATABASES = {
             'sslrootcert': os.path.join(BASE_DIR, 'secrets','us-east-1-bundle.pem'),
         },
     },
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+       'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+}
+
+PRIVATE_KEY_PATH = os.path.join(BASE_DIR, "secrets",'private_key.pem')
+PUBLIC_KEY_PATH = os.path.join(BASE_DIR,"secrets", 'public_key.pem')
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=120),#11 hours
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=10),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'ALGORITHM': 'RS256',
+    'SIGNING_KEY': open(PRIVATE_KEY_PATH, 'r').read(),
+    'VERIFYING_KEY': open(PUBLIC_KEY_PATH, 'r').read(),
+    'AUTH_HEADER_TYPES': ('JWT',),
+    'USER_ID_FIELD': 'username', #'username'
+    'USER_ID_CLAIM': 'username', #username
+    'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
 
