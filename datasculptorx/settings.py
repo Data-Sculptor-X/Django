@@ -120,8 +120,8 @@ SIMPLE_JWT = {
     'SIGNING_KEY': open(PRIVATE_KEY_PATH, 'r').read(),
     'VERIFYING_KEY': open(PUBLIC_KEY_PATH, 'r').read(),
     'AUTH_HEADER_TYPES': ('JWT',),
-    'USER_ID_FIELD': 'username', #'username'
-    'USER_ID_CLAIM': 'username', #username
+    'USER_ID_FIELD': 'id', #'username'
+    'USER_ID_CLAIM': 'id', #username
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
 

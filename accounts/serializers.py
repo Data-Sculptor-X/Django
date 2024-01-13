@@ -3,8 +3,48 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from .models import *
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 User = get_user_model()
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    @classmethod
+    def get_token(cls, user,tk):
+        token = super().get_token(user)
+        token['tk'] = tk
+        return token
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True)
+    remember_me = serializers.BooleanField(write_only=True, default=False)
+
+    def validate(self, data):
+        username = data.get('username')
+        password = data.get('password')
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User does not exist")
+
+        if not user.check_password(password):
+            raise serializers.ValidationError("Incorrect password")
+
+        user_track = UserTrack(
+            username=user,
+           remember_me=data.get('remember_me', False),
+           count= "1"
+        )
+        user_track.save()
+        token = MyTokenObtainPairSerializer.get_token(user,user_track.id)
+        success_data = {
+            'refresh_token': str(token),
+            'access_token': str(token.access_token)
+        }
+
+        return success_data
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,18 +63,3 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return user
 
-
-class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(write_only=True)
-    password = serializers.CharField(write_only=True)
-
-    def validate(self, data):
-        user = User.objects.get(username=data['username'])
-        if user.check_password(data['password']):
-            refresh = RefreshToken.for_user(user)
-            data['refresh_token'] = str(refresh)
-            data['access_token'] = str(refresh.access_token)
-            data.pop("password")
-        else:
-            raise serializers.ValidationError("Incorrect credentials")
-        return data
