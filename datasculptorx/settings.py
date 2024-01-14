@@ -52,10 +52,7 @@ MIDDLEWARE = [
     'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
 ]
-
-
 
 
 
@@ -83,9 +80,6 @@ WSGI_APPLICATION = 'datasculptorx.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-
-
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -101,6 +95,17 @@ DATABASES = {
     },
 }
 
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587  
+EMAIL_USE_TLS = True  
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD =os.getenv('EMAIL_HOST_PASSWORD')  
+EMAIL_FROM = os.getenv('EMAIL_FROM')  
+
+
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -110,9 +115,9 @@ REST_FRAMEWORK = {
     ),
 }
 
+#Pem Files
 PRIVATE_KEY_PATH = os.path.join(BASE_DIR, "secrets",'private_key.pem')
 PUBLIC_KEY_PATH = os.path.join(BASE_DIR,"secrets", 'public_key.pem')
-
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=120),#11 hours
@@ -123,8 +128,8 @@ SIMPLE_JWT = {
     'SIGNING_KEY': open(PRIVATE_KEY_PATH, 'r').read(),
     'VERIFYING_KEY': open(PUBLIC_KEY_PATH, 'r').read(),
     'AUTH_HEADER_TYPES': ('JWT',),
-    'USER_ID_FIELD': 'id', #'username'
-    'USER_ID_CLAIM': 'id', #username
+    'USER_ID_FIELD': 'id', 
+    'USER_ID_CLAIM': 'id', 
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
@@ -172,6 +177,7 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+#Static and media 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
@@ -181,7 +187,6 @@ MEDIA_URL ='/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 #Storage
-
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
@@ -189,10 +194,9 @@ AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
 AWS_S3_SIGNATURE_NAME = 's3v4s'
 
-
-
-APPEND_SLASH = False
-
 # Django Apscheduler Configuration
 APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 APSCHEDULER_RUN_NOW_TIMEOUT = 1800 
+
+#url
+APPEND_SLASH = False
