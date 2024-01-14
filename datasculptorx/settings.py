@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'accounts',
     'django_otp',
     'django_otp.plugins.otp_totp',
+    'Notification',
+    'scheduler',
+    'django_apscheduler'
 ]
 
 MIDDLEWARE = [
@@ -185,5 +188,11 @@ AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
 AWS_S3_SIGNATURE_NAME = 's3v4s'
-# AWS_S3_ENDPOINT = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.backblazeb2.com'
-# AWS_S3_ENDPOINT_URL = f'https://{AWS_S3_ENDPOINT}'
+
+
+
+APPEND_SLASH = False
+
+# Django Apscheduler Configuration
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_NOW_TIMEOUT = 1800 
