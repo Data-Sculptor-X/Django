@@ -5,7 +5,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 	list_display= ('username','name','email','phone_no','active','tfa')
 
 class UserTrackAdmin(admin.ModelAdmin):
-	list_display= ('username','refresh_token','count','remember_me','login','logout')
+	list_display= ('username','count','remember_me','login','logout')
 
 admin.site.register(UserProfile,UserProfileAdmin)
 admin.site.register(UserTrack,UserTrackAdmin)

@@ -27,7 +27,6 @@ class UserProfile(models.Model):
 	
 class UserTrack(models.Model):
 	username = models.ForeignKey(User,on_delete=models.SET_NULL, null=True, blank=True) 
-	refresh_token = models.CharField(max_length=255,null=True, blank=True)  
 	login = models.DateTimeField(auto_now_add=True)
 	logout = models.DateTimeField(null=True, blank=True) 
 	remember_me= models.BooleanField(null=True, blank=True) 
