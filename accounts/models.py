@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 # # Create your models here.
 
-
 class UserProfile(models.Model):
 	username = models.ForeignKey(User,on_delete=models.SET_NULL, null=True, blank=True) 
 	name = models.CharField(max_length=255, null=True,blank=True)  
@@ -14,6 +13,8 @@ class UserProfile(models.Model):
 	locked = models.CharField(max_length=255, null=True,blank=True) 
 	active = models.BooleanField( null=True, blank=True) 
 	tfa = models.BooleanField( null=True, blank=True)
+	google_user = models.BooleanField(default=False)
+	dx_user = models.BooleanField(default=False)
 	
 # class OrganizationProfile(models.Model):
 # 	username = models.ForeignKey(User,on_delete=models.SET_NULL, null=True, blank=True) 
