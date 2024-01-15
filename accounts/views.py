@@ -4,13 +4,17 @@ from rest_framework import generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
+from .serializers import  LoginSerializer, UserSerializer
 import jwt
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from .models import *
+from datetime import datetime
+import calendar
+import random
+import string
 
 User = get_user_model()
 verification_key_path = settings.PUBLIC_KEY_PATH
@@ -19,12 +23,50 @@ try:
 except FileNotFoundError:
     print(f"Error: Public key file not found at {settings.PUBLIC_KEY_PATH}")
    
-class RegisterView(generics.CreateAPIView):
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = RegisterSerializer
+def generate_random_string(length):
+    letters_and_digits = string.ascii_uppercase + string.digits
+    return ''.join(random.choice(letters_and_digits) for _ in range(length))
+
 
 class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
+
+class RegisterView(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request, format=None):
+        data = request.data
+        name = data.get("name")
+        dob = data.get("dob")
+        email = data.get("email")
+        password = data.get("password")
+
+        # Check if the email already exists
+        if UserProfile.objects.filter(email=email).exists():
+            return Response({"error": "An account with this email already exists."}, status=400)
+
+        try:
+            current_datetime = datetime.now()
+            timestamp = calendar.timegm(current_datetime.utctimetuple())
+            user = User.objects.create(username="dx"+str(timestamp)+"D", email=email)
+            user.set_password(password)
+            user.save()
+
+            userProfile = UserProfile.objects.create(
+                username=user,
+                dx_user=True,
+                dob=dob,
+                name=name,
+                email=email,
+                secret_key=generate_random_string(60)
+            )
+            userProfile.save()
+            return Response({"message": "Account created successfully."}, status=201)
+
+        except Exception as e:
+            user.delete()
+            return Response({"error": str(e)}, status=500)
+
 
 class UserProfileView(APIView):
     permission_classes = (IsAuthenticated,)

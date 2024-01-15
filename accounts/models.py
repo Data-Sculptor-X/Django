@@ -1,9 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
+
 # # Create your models here.
 
 class UserProfile(models.Model):
-	username = models.ForeignKey(User,on_delete=models.SET_NULL, null=True, blank=True) 
+	username = models.OneToOneField(User, on_delete=models.CASCADE,null=True,blank=True)  
 	name = models.CharField(max_length=255, null=True,blank=True)  
 	dob = models.DateField( null=True,blank=True)
 	email = models.CharField(max_length=255, null=True,blank=True) 
@@ -11,10 +12,11 @@ class UserProfile(models.Model):
 	profile_picture = models.ImageField( upload_to='userProfile/',null=True, blank=True) 
 	secret_key = models.CharField(max_length=255, null=True,blank=True) 
 	locked = models.CharField(max_length=255, null=True,blank=True) 
-	active = models.BooleanField( null=True, blank=True) 
 	tfa = models.BooleanField( null=True, blank=True)
 	google_user = models.BooleanField(default=False)
 	dx_user = models.BooleanField(default=False)
+	mobile_verified = models.BooleanField(default=False)
+	email_verified = models.BooleanField(default=False)
 	
 # class OrganizationProfile(models.Model):
 # 	username = models.ForeignKey(User,on_delete=models.SET_NULL, null=True, blank=True) 

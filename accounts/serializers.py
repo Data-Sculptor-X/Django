@@ -22,10 +22,10 @@ class LoginSerializer(serializers.Serializer):
     remember_me = serializers.BooleanField(write_only=True, default=False)
 
     def validate(self, data):
-        username = data.get('username')
+        email = data.get('username')
         password = data.get('password')
         try:
-            user = User.objects.get(username=username)
+            user = User.objects.get(email=email)
         except User.DoesNotExist:
             raise serializers.ValidationError("User does not exist")
 
@@ -51,15 +51,4 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email')
 
-
-class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'email', 'password')
-
-    def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
-        return user
 
