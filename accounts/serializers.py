@@ -26,9 +26,10 @@ class LoginSerializer(serializers.Serializer):
         password = data.get('password')
         try:
             user = User.objects.get(email=email)
+            profile = UserProfile.objects.get(email=email)
         except User.DoesNotExist:
             raise serializers.ValidationError("User does not exist")
-        if user.email_verified == False:
+        if profile.email_verified == False:
             raise serializers.ValidationError("Email is Not Verified") 
         if not user.check_password(password):
             raise serializers.ValidationError("Incorrect password")
