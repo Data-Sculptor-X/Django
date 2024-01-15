@@ -4,7 +4,7 @@ from rest_framework import generics, permissions
 
 from google.auth.transport import requests
 from google.oauth2 import id_token
-
+from .serializers import *
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -32,6 +32,11 @@ def generate_random_string(length):
     return ''.join(random.choice(letters_and_digits) for _ in range(length))
 
 
+def user_type(UserProfileData):
+    if UserProfileData.google_user:
+        return "google"
+    if UserProfileData.dx_user:
+        return "dx"
 class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
 
@@ -46,9 +51,10 @@ class RegisterView(APIView):
         password = data.get("password")
 
         # Check if the email already exists
-        if UserProfile.objects.filter(email=email).exists():
+        if UserProfile.objects.filter(email=email,dx_user=True).exists():
             return Response({"error": "An account with this email already exists."}, status=400)
-
+        if UserProfile.objects.filter(email=email,google_user=True).exists():
+            return Response({"error": "An account with this email already exists in Google Login."}, status=400)
         try:
             current_datetime = datetime.now()
             timestamp = calendar.timegm(current_datetime.utctimetuple())
@@ -78,34 +84,69 @@ class GLogin(APIView):
     def post(self, request, format=None):
         data = request.data
         token = data.get("token")
-        id_info = id_token.verify_oauth2_token(token, requests.Request(), "439800211520-e23qodk9aeoq6k2pk3ss43g22aiv61hp.apps.googleusercontent.com")
-        print(id_info)
-        # # Check if the email already exists
-        # if UserProfile.objects.filter(email=email).exists():
-        #     return Response({"error": "An account with this email already exists."}, status=400)
 
-        # try:
-        #     current_datetime = datetime.now()
-        #     timestamp = calendar.timegm(current_datetime.utctimetuple())
-        #     user = User.objects.create(username="dx"+str(timestamp)+"D", email=email)
-        #     user.set_password(password)
-        #     user.save()
 
-        #     userProfile = UserProfile.objects.create(
-        #         username=user,
-        #         dx_user=True,
-        #         dob=dob,
-        #         name=name,
-        #         email=email,
-        #         secret_key=generate_random_string(60)
-        #     )
-        #     userProfile.save()
-        #     return Response({"message": "Account created successfully."}, status=201)
+        try:
+            ginfo = id_token.verify_oauth2_token(token, requests.Request(), "439800211520-e23qodk9aeoq6k2pk3ss43g22aiv61hp.apps.googleusercontent.com")
+        except Exception as e:
+                return Response({"error": str(e)}, status=500)
+        
 
-        # except Exception as e:
-        #     user.delete()
-        #      return Response({"error": str(e)}, status=500)
-        return Response(id_info)
+        email= ginfo.get('email')
+        name= ginfo.get('name')
+
+
+        # Check if the email already exists
+        if UserProfile.objects.filter(email=email,google_user=True).exists():
+            user = User.objects.get(email=email)
+            user_track = UserTrack( 
+                username=user,
+                remember_me=data.get('remember_me', False),
+                count= "1"
+            )
+            user_track.save()
+            token = MyTokenObtainPairSerializer.get_token(user,user_track.id)
+            success_data = {
+                'refresh_token': str(token),
+                'access_token': str(token.access_token)
+            }
+            return Response(success_data, status=201)
+        elif UserProfile.objects.filter(email=email).exists():
+            return Response({"error": "Account is already created with DX Login"}, status=500)
+        else:
+            try:
+                current_datetime = datetime.now()
+                timestamp = calendar.timegm(current_datetime.utctimetuple())
+                user = User.objects.create(username="dx"+str(timestamp)+"G", email=email)
+                user.set_password(generate_random_string(15))
+                user.save()
+
+                userProfile = UserProfile.objects.create(
+                    username=user,
+                    google_user=True,
+                    email_verified=True,
+                    name=name,
+                    email=email,
+                    secret_key=generate_random_string(60)
+                )
+                userProfile.save()
+                user_track = UserTrack( 
+                username=user,
+                remember_me=data.get('remember_me', False),
+                count= "1"
+                )
+                user_track.save()
+                token = MyTokenObtainPairSerializer.get_token(user,user_track.id)
+                success_data = {
+                'refresh_token': str(token),
+                'access_token': str(token.access_token),
+                "first_login" :True
+                }
+                return Response(success_data, status=201)
+
+            except Exception as e:
+                user.delete()
+                return Response({"error": str(e)}, status=500)
 
 
 
@@ -125,12 +166,13 @@ class UserProfileView(APIView):
         userTrackData = UserTrack.objects.get(id=data["tk"])
         UserProfileData = UserProfile.objects.get(username=userTrackData.username)
         print(userTrackData,UserProfileData)
-
+        userType=user_type(UserProfileData)
         success_data = {
             "name":UserProfileData.name,
             "dob":UserProfileData.dob,
             "email":UserProfileData.email,
             "phone_no":UserProfileData.phone_no,
+            "user_type":userType,
             "profile_picture":UserProfileData.profile_picture.url if UserProfileData.profile_picture else None,
             "tfa":UserProfileData.tfa,
         }
