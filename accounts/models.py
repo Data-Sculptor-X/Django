@@ -12,7 +12,7 @@ class UserProfile(models.Model):
 	profile_picture = models.ImageField( upload_to='userProfile/',null=True, blank=True) 
 	secret_key = models.CharField(max_length=255, null=True,blank=True) 
 	locked = models.CharField(max_length=255, null=True,blank=True) 
-	tfa = models.BooleanField( null=True, blank=True)
+	tfa = models.BooleanField( null=True, blank=True,default=False)
 	google_user = models.BooleanField(default=False)
 	dx_user = models.BooleanField(default=False)
 	mobile_verified = models.BooleanField(default=False)

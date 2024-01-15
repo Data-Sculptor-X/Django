@@ -1,6 +1,10 @@
 # your_app/views.py
 
 from rest_framework import generics, permissions
+
+from google.auth.transport import requests
+from google.oauth2 import id_token
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -66,6 +70,43 @@ class RegisterView(APIView):
         except Exception as e:
             user.delete()
             return Response({"error": str(e)}, status=500)
+
+
+class GLogin(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request, format=None):
+        data = request.data
+        token = data.get("token")
+        id_info = id_token.verify_oauth2_token(token, requests.Request(), "439800211520-e23qodk9aeoq6k2pk3ss43g22aiv61hp.apps.googleusercontent.com")
+        print(id_info)
+        # # Check if the email already exists
+        # if UserProfile.objects.filter(email=email).exists():
+        #     return Response({"error": "An account with this email already exists."}, status=400)
+
+        # try:
+        #     current_datetime = datetime.now()
+        #     timestamp = calendar.timegm(current_datetime.utctimetuple())
+        #     user = User.objects.create(username="dx"+str(timestamp)+"D", email=email)
+        #     user.set_password(password)
+        #     user.save()
+
+        #     userProfile = UserProfile.objects.create(
+        #         username=user,
+        #         dx_user=True,
+        #         dob=dob,
+        #         name=name,
+        #         email=email,
+        #         secret_key=generate_random_string(60)
+        #     )
+        #     userProfile.save()
+        #     return Response({"message": "Account created successfully."}, status=201)
+
+        # except Exception as e:
+        #     user.delete()
+        #      return Response({"error": str(e)}, status=500)
+        return Response(id_info)
+
 
 
 class UserProfileView(APIView):
