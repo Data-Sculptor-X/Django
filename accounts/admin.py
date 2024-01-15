@@ -7,4 +7,5 @@ class UserProfileAdmin(admin.ModelAdmin):
 class UserTrackAdmin(admin.ModelAdmin):
 	list_display= ('username','count','remember_me','login','logout')
 
- 
+admin.site.register(UserProfile,UserProfileAdmin)
+admin.site.register(UserTrack,UserTrackAdmin)
